@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 project(CREATOR)
 
-
 # A convenience variable:
 set(LLVM_ROOT "/usr/local" CACHE PATH "Root of LLVM install.")
 
@@ -20,6 +19,7 @@ include_directories( ${LLVM_INCLUDE_DIRS} )
 link_directories( ${LLVM_LIBRARY_DIRS} )
 add_definitions( ${LLVM_DEFINITIONS} )
 
+# FIXME: static {include,link} directories for FreeBSD 10.0 
 include_directories( "/usr/local/llvm34/include" )
 link_directories( "/usr/local/llvm34/lib" )
 
