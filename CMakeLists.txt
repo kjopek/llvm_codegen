@@ -20,6 +20,13 @@ include_directories( ${LLVM_INCLUDE_DIRS} )
 link_directories( ${LLVM_LIBRARY_DIRS} )
 add_definitions( ${LLVM_DEFINITIONS} )
 
+include_directories( "/usr/local/llvm34/include" )
+link_directories( "/usr/local/llvm34/lib" )
+
+message(STATUS "LLVM_INCLUDE: ${LLVM_INCLUDE_DIRS}")
+message(STATUS "LLVM_LIBRARY: ${LLVM_LIBRARY_DIRS}")
+message(STATUS "LLVM DEFINITIONS: ${LLVM_DEFINITIONS}")
+
 # Let's suppose we want to build a JIT compiler with support for
 # binary code (no interpreter):
 llvm_map_components_to_libraries(REQ_LLVM_LIBRARIES jit native)
