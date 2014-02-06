@@ -1,24 +1,10 @@
 #include <cstdio>
 
-#include <map>
-#include <vector>
+#include "generator.hpp"
 
-#include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/LLVMContext.h"
-#include "llvm/IR/Module.h"
-
-using namespace llvm;
-
-static Module *mainModule;
-
-int main()
+int main(int argc, char ** argv)
 {
-    LLVMContext &context = getGlobalContext();
-
-    mainModule = new Module("solver_creator", context);
-
-    mainModule->dump();    
-
+    Generator *generator = new Generator();
     return 0;
 }
 

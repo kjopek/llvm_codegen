@@ -29,7 +29,7 @@ message(STATUS "LLVM DEFINITIONS: ${LLVM_DEFINITIONS}")
 
 # Let's suppose we want to build a JIT compiler with support for
 # binary code (no interpreter):
-llvm_map_components_to_libraries(REQ_LLVM_LIBRARIES jit native)
+llvm_map_components_to_libraries(REQ_LLVM_LIBRARIES native)
 
 # Finally, we link the LLVM libraries to our executable:
 
