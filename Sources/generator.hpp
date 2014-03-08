@@ -3,6 +3,9 @@
 
 #include <iostream>
 
+#include <list>
+#include <map>
+
 #include "llvm/Analysis/Passes.h"
 #include "llvm/Analysis/Verifier.h"
 
@@ -37,6 +40,12 @@ class Generator
   public:
     Generator(CodeGenOpt::Level optLevel = CodeGenOpt::Aggressive);
     ~Generator();
+
+    bool create_function(const std::string name,
+                         std::list<std::list<int> > enumerator,
+                         std::list<int> to_eliminate);
+
+    void save_to_file(const std::string &filename);
 };
 
 #endif
