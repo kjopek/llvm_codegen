@@ -4,7 +4,6 @@
 #include "generator.hpp"
 
 #include <fstream>
-#include "yaml-cpp/yaml.h"
 
 void usage() {
     printf("Usage: Creator -f input.file -o binary.o\n");

@@ -25,12 +25,4 @@ message(STATUS "LLVM DEFINITIONS: ${LLVM_DEFINITIONS}")
 
 llvm_map_components_to_libraries(REQ_LLVM_LIBRARIES native)
 
-set(YAML_INCLUDE_DIRS "/usr/local/include")
-set(YAML_LIBRARY_DIRS "/usr/local/lib")
-set(YAML_DEFINITIONS "-lyaml-cpp")
-include_directories(${YAML_INCLUDE_DIRS})
-link_directories(${YAML_LIBRARY_DIRS})
-add_definitions( ${YAML_DEFINITIONS} )
-# Finally, we link the LLVM libraries to our executable:
-
 add_subdirectory(Sources)
