@@ -32,7 +32,7 @@ int main(int argc, char ** argv) {
     std::cout << output << std::endl;
 
     Generator *generator = new Generator();
-
+    generator->create_function("test", std::list< std::list<int> >(), std::list<int>());
     generator->save_to_file(output);
     delete generator;
     return 0;

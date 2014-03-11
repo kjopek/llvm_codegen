@@ -32,7 +32,6 @@ using namespace llvm;
 class Generator
 {
   private:
-   LLVMContext &context = getGlobalContext();
    TargetMachine *targetMachine;
    std::string triple;
    Module *module;
@@ -42,8 +41,8 @@ class Generator
     ~Generator();
 
     bool create_function(const std::string name,
-                         std::list<std::list<int> > enumerator,
-                         std::list<int> to_eliminate);
+                         std::list< std::list< int > > enumerator,
+                         std::list< int > to_eliminate);
 
     void save_to_file(const std::string &filename);
 };

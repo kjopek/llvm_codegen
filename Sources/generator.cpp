@@ -26,8 +26,7 @@ Generator::Generator(CodeGenOpt::Level optLevel)
     this->targetMachine = target->createTargetMachine(triple,
         "", "", options, Reloc::Default, CodeModel::Default, optLevel);
 
-    this->module = new Module("solver_creator", context);
-
+    this->module = new Module("solver_creator", getGlobalContext());
 }
 
 void Generator::save_to_file(const std::string &filename)
@@ -39,7 +38,7 @@ void Generator::save_to_file(const std::string &filename)
 
     raw_fd_ostream dest(filename.c_str(), error, sys::fs::F_Binary);
     formatted_raw_ostream destf(dest);
-    
+
     if (this->targetMachine->addPassesToEmitFile(pass, destf, TargetMachine::CGFT_ObjectFile)) {
         std::cout << error << std::endl;
     }
@@ -55,11 +54,21 @@ Generator::~Generator()
 }
 
 bool Generator::create_function(const std::string name,
-                                std::list<std::list<int> > enumerator,
-                                std::list<int> to_sum)
+                                std::list< std::list< int > > enumerator,
+                                std::list< int > to_sum)
 {
-    std::vector<Type*> func_args(enumerator.size()*2 + 1,
-                            Type::getVoidTy(this->context));
+    IRBuilder<> builder(getGlobalContext());
+
+    std::vector<Type*> func_args(enumerator.size()*2 + 2,
+         PointerType::get((Type*)Type::getDoublePtrTy(getGlobalContext()), 0) );
+
+    FunctionType *funcType = FunctionType::get(Type::getVoidTy(getGlobalContext()), func_args, false);
+    Function *function = Function::Create(funcType, Function::ExternalLinkage, name, this->module);
+
+    BasicBlock *entryBlock = BasicBlock::Create(getGlobalContext(), "entry", function);
+    builder.SetInsertPoint(entryBlock);
+
+    builder.CreateRetVoid();
 //    for 
     return true;
 }
