@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
-project(CREATOR)
+project(solvercreator)
+
+set(CMAKE_BUILD_TYPE Release)
 
 set(LLVM_ROOT "/usr/local" CACHE PATH "Root of LLVM install.")
 
@@ -26,4 +28,7 @@ message(STATUS "LLVM DEFINITIONS: ${LLVM_DEFINITIONS}")
 
 llvm_map_components_to_libraries(REQ_LLVM_LIBRARIES native)
 
-add_subdirectory(src)
+add_library(solvercreator SHARED src/generator.cpp)
+target_link_libraries(solvercreator ${REQ_LLVM_LIBRARIES})
+
+add_subdirectory(tests)
