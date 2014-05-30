@@ -25,4 +25,4 @@ message(STATUS "LLVM DEFINITIONS: ${LLVM_DEFINITIONS}")
 
 llvm_map_components_to_libraries(REQ_LLVM_LIBRARIES native)
 
-add_subdirectory(Sources)
+add_subdirectory(src)
