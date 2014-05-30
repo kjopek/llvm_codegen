@@ -17,6 +17,7 @@ add_definitions( ${LLVM_DEFINITIONS} )
 
 # FIXME: static {include,link} directories for FreeBSD 10.0 
 include_directories( "/usr/local/llvm34/include" )
+include_directories( "./include" )
 link_directories( "/usr/local/llvm34/lib" )
 
 message(STATUS "LLVM_INCLUDE: ${LLVM_INCLUDE_DIRS}")

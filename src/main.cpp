@@ -9,6 +9,8 @@ void usage() {
     printf("Usage: Creator -f input.file -o binary.o\n");
 }
 
+using namespace SolverCreator;
+
 int main(int argc, char ** argv) {
 
     std::string output;
@@ -32,8 +34,8 @@ int main(int argc, char ** argv) {
     std::cout << output << std::endl;
 
     Generator *generator = new Generator();
-    generator->create_function("test", std::list< std::list<int> >(), std::list<int>());
-    generator->save_to_file(output);
+    generator->createFunction("test", std::list< std::list<int> >(), std::list<int>());
+    generator->saveToFile(output);
     delete generator;
     return 0;
 }

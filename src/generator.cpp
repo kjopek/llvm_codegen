@@ -10,6 +10,8 @@
 #include "llvm/MC/MCSubtargetInfo.h"
 #include "llvm/Support/MemoryObject.h"
 
+using namespace SolverCreator;
+
 Generator::Generator(CodeGenOpt::Level optLevel)
 {
     InitializeNativeTarget();
@@ -29,7 +31,7 @@ Generator::Generator(CodeGenOpt::Level optLevel)
     this->module = new Module("solver_creator", getGlobalContext());
 }
 
-void Generator::save_to_file(const std::string &filename)
+void Generator::saveToFile(const std::string &filename)
 {
     PassManager pass;
     std::string error;
@@ -53,7 +55,7 @@ Generator::~Generator()
     delete this->module;
 }
 
-bool Generator::create_function(const std::string name,
+bool Generator::createFunction(const std::string name,
                                 std::list< std::list< int > > enumerator,
                                 std::list< int > to_sum)
 {

@@ -29,22 +29,26 @@
 
 using namespace llvm;
 
-class Generator
-{
-  private:
-   TargetMachine *targetMachine;
-   std::string triple;
-   Module *module;
+namespace SolverCreator {
 
-  public:
-    Generator(CodeGenOpt::Level optLevel = CodeGenOpt::Aggressive);
-    ~Generator();
+    class Generator
+    {
+    private:
+        TargetMachine *targetMachine;
+        std::string triple;
+        Module *module;
 
-    bool create_function(const std::string name,
+    public:
+        Generator(CodeGenOpt::Level optLevel = CodeGenOpt::Aggressive);
+        ~Generator();
+
+        bool createFunction(const std::string name,
                          std::list< std::list< int > > enumerator,
                          std::list< int > to_eliminate);
 
-    void save_to_file(const std::string &filename);
-};
+        void saveToFile(const std::string &filename);
+    };
 
+}
 #endif
+
