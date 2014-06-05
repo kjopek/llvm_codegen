@@ -1,23 +1,23 @@
 #ifndef STRUCTURES_HPP
 #define STRUCTURES_HPP
 
-/* This file contains structures for 
-   solver */
+#include <stdint.h>
+#include <map>
+#include <list>
 
-typedef enum {
-	RECTANGULAR = -2,
-	LOWER_TRIANGULAR,
-	ZERO,
-	DENSE_LOWER_TRIANGULAR,
-	DENSE_RECTANGULAR
-} matrix_type;
+namespace SolverCreator {
 
-typedef struct h_martix {
-	matrix_type type; // type of matrix
-	int rows, cols; 
-	double *D; // pointer to data (dense block)
-	h_matrix *H; 
-} hyper_matrix;
+/* This file contains useful stuctures for
+   integration with other components*/
 
+    typedef list<uint64_t> Element;
+
+    typedef struct _Node {
+        _Node *left;
+        _Node *right;
+        Element e;
+    } Node;
+
+} // namespace SolverCreator
 
 #endif // STRUCTURES_HPP
