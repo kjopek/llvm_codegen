@@ -33,18 +33,28 @@ namespace SolverCreator {
 
     class Generator
     {
-    private:
+      private:
         TargetMachine *targetMachine;
         std::string triple;
         Module *module;
-
-    public:
-        Generator(CodeGenOpt::Level optLevel = CodeGenOpt::Aggressive);
+        // wordSize may be 32 or 64
+        int wordSize;
+        
+      public:
+        Generator(CodeGenOpt::Level optLevel = CodeGenOpt::None, int wordSize = 64);
         ~Generator();
 
-        bool createFunction(const std::string name,
-                         std::list< std::list< int > > enumerator,
-                         std::list< int > to_eliminate);
+        bool createMergeFunction(const std::string &name,
+        	const std::vector< uint64_t > &nodesA,
+		    const std::vector< uint64_t > &nodesB,
+            const std::vector< uint64_t > &outOrder);
+
+	    bool createEliminationFunction(const std::string &name,
+			int nodesToEliminate);
+			 
+        bool createBackSubstitutionFunction(const std::string &name,
+            const std::vector< int > &localNodes,
+            const std::list< int > &parentNodes);
 
         void saveToFile(const std::string &filename);
     };
