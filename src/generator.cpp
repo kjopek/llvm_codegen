@@ -141,6 +141,7 @@ bool Generator::createMergeFunction(const std::string &name,
                 uint64_t offsetAY = revNodesA[y_node];
                 uint64_t offsetBX = revNodesB[x_node];
                 uint64_t offsetBY = revNodesB[y_node];
+                fprintf(stderr, "A[%lu, %lu] + B[%lu, %lu]\n", offsetAX, offsetAY, offsetBX, offsetBY);
                 
                 Value *valA = builder.CreateLoad(builder.CreateGEP(
                                                     builder.CreateLoad(builder.CreateGEP(matrixA, 
