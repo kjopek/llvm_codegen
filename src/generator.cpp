@@ -31,6 +31,7 @@ Generator::Generator(CodeGenOpt::Level optLevel, int wordSize)
         "", "", options, Reloc::Default, CodeModel::Default, optLevel);
 
     this->module = new Module("solver_creator", getGlobalContext());
+
 }
 
 void Generator::saveToFile(const std::string &filename)
@@ -55,6 +56,31 @@ void Generator::saveToFile(const std::string &filename)
 Generator::~Generator()
 {
     delete this->module;
+}
+
+Value *Generator::getMatrixElement(IRBuilder<> &builder, Value *matrix, uint64_t x, uint64_t y)
+{
+    return builder.CreateLoad(builder.CreateGEP(
+                                     builder.CreateLoad(builder.CreateGEP(matrix,
+                                     ConstantInt::get(getGlobalContext(), APInt(this->wordSize, x)))),
+                                     ConstantInt::get(getGlobalContext(), APInt(this->wordSize, y))));
+}
+
+Value *Generator::getVectorElement(IRBuilder<> &builder, Value *vector, uint64_t x)
+{
+    return builder.CreateLoad(builder.CreateGEP(vector, ConstantInt::get(getGlobalContext(), APInt(this->wordSize, x))));
+}
+
+Value *Generator::getMatrixTgtPtr(IRBuilder<> &builder, Value *matrix, uint64_t x, uint64_t y)
+{
+    return builder.CreateGEP(builder.CreateLoad(builder.CreateGEP(matrix,
+                                                         ConstantInt::get(getGlobalContext(), APInt(this->wordSize, x)))),
+                                                         ConstantInt::get(getGlobalContext(), APInt(this->wordSize, y))) ;
+}
+
+Value *Generator::getVectorTgtPtr(IRBuilder<> &builder, Value *vector, uint64_t x)
+{
+    return builder.CreateGEP(vector, ConstantInt::get(getGlobalContext(), APInt(this->wordSize, x)));
 }
 
 bool Generator::createMergeFunction(const std::string &name,
@@ -143,47 +169,46 @@ bool Generator::createMergeFunction(const std::string &name,
                 uint64_t offsetBY = revNodesB[y_node];
                 fprintf(stderr, "A[%lu, %lu] + B[%lu, %lu]\n", offsetAX, offsetAY, offsetBX, offsetBY);
                 
-                Value *valA = builder.CreateLoad(builder.CreateGEP(
-                                                    builder.CreateLoad(builder.CreateGEP(matrixA, 
-                                                    ConstantInt::get(getGlobalContext(), APInt(64, offsetAX)))),
-                                                 ConstantInt::get(getGlobalContext(), APInt(64, offsetAY))));
-                Value *valB = builder.CreateLoad(builder.CreateGEP(
-                                                    builder.CreateLoad(builder.CreateGEP(matrixB, 
-                                                    ConstantInt::get(getGlobalContext(), APInt(64, offsetBX)))),
-                                                 ConstantInt::get(getGlobalContext(), APInt(64, offsetBY))));
+                Value *valA = this->getMatrixElement(builder, matrixA, offsetAX, offsetAY);
+                Value *valB = this->getMatrixElement(builder, matrixB, offsetBX, offsetBY);
                 
                 Value *sumAB = builder.CreateFAdd(valA, valB);
-                Value *targetPtr = builder.CreateGEP( builder.CreateLoad(builder.CreateGEP(matrixOut, 
-                                                    ConstantInt::get(getGlobalContext(), APInt(64, i)))),
-                                                 ConstantInt::get(getGlobalContext(), APInt(64, j))) ;
+                Value *targetPtr = this->getMatrixTgtPtr(builder, matrixOut, i, j);
                 builder.CreateStore(sumAB, targetPtr);
-            } else if (inA && !inB) {
+                
+                Value *valRhsA = this->getVectorElement(builder, rhsA, offsetAX);
+                Value *valRhsB = this->getVectorElement(builder, rhsB, offsetBX);
+                Value *sumRHS = builder.CreateFAdd(valRhsA, valRhsB);
+                
+                Value *targetRhsPtr = this->getVectorTgtPtr(builder, rhsOut, i);
+                builder.CreateStore(sumRHS, targetRhsPtr);
+                
+            }
+            else if (inA && !inB) {
                 uint64_t offsetAX = revNodesA[x_node];
                 uint64_t offsetAY = revNodesA[y_node];
-                Value *valA = builder.CreateLoad(builder.CreateGEP(
-                                                    builder.CreateLoad(builder.CreateGEP(matrixA, 
-                                                    ConstantInt::get(getGlobalContext(), APInt(64, offsetAX)))),
-                                                 ConstantInt::get(getGlobalContext(), APInt(64, offsetAY))));
-                Value *targetPtr = builder.CreateGEP( builder.CreateLoad(builder.CreateGEP(matrixOut, 
-                                                    ConstantInt::get(getGlobalContext(), APInt(64, i)))),
-                                                 ConstantInt::get(getGlobalContext(), APInt(64, j))) ;
+                Value *valA = this->getMatrixElement(builder, matrixA, offsetAX, offsetAY);
+                Value *targetPtr = this->getMatrixTgtPtr(builder, matrixOut, i, j);
                 builder.CreateStore(valA, targetPtr);
-            } else if (!inA && inB) {
+
+                Value *valRhsA = this->getVectorElement(builder, rhsA, offsetAX);
+                Value *targetRhsPtr = this->getVectorTgtPtr(builder, rhsOut, i);
+                builder.CreateStore(valRhsA, targetRhsPtr);
+            }
+            else if (!inA && inB) {
                 uint64_t offsetBX = revNodesB[x_node];
                 uint64_t offsetBY = revNodesB[y_node];
-                Value *valB = builder.CreateLoad(builder.CreateGEP(
-                                                    builder.CreateLoad(builder.CreateGEP(matrixB, 
-                                                    ConstantInt::get(getGlobalContext(), APInt(64, offsetBX)))),
-                                                 ConstantInt::get(getGlobalContext(), APInt(64, offsetBY))));
-                Value *targetPtr = builder.CreateGEP( builder.CreateLoad(builder.CreateGEP(matrixOut, 
-                                                    ConstantInt::get(getGlobalContext(), APInt(64, i)))),
-                                                 ConstantInt::get(getGlobalContext(), APInt(64, j))) ;
+                Value *valB = this->getMatrixElement(builder, matrixB, offsetBX, offsetBY);
+                Value *targetPtr = this->getMatrixTgtPtr(builder, matrixOut, i, j);
                 builder.CreateStore(valB, targetPtr);
                 
+                Value *valRhsB = this->getVectorElement(builder, rhsB, offsetBX);
+                Value *targetRhsPtr = this->getVectorTgtPtr(builder, rhsOut, i);
+                builder.CreateStore(valRhsB, targetRhsPtr);
             }
         }
     }
-                                                
+
     builder.CreateRetVoid();
     return true;
 }

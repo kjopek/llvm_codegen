@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(solvercreator)
 
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 set(LLVM_ROOT "/usr/local" CACHE PATH "Root of LLVM install.")
 
@@ -16,6 +16,8 @@ include(LLVMConfig)
 include_directories( ${LLVM_INCLUDE_DIRS} )
 link_directories( ${LLVM_LIBRARY_DIRS} )
 add_definitions( ${LLVM_DEFINITIONS} )
+
+SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
 
 # FIXME: static {include,link} directories for FreeBSD 10.0 
 include_directories( "/usr/local/llvm34/include" )

@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+#include <vector>
 #include <list>
 #include <map>
 
@@ -31,6 +32,11 @@ using namespace llvm;
 
 namespace SolverCreator {
 
+    enum RowColOrder {
+        ROW_MAJOR,
+        COL_MAJOR
+    };
+
     class Generator
     {
       private:
@@ -39,7 +45,14 @@ namespace SolverCreator {
         Module *module;
         // wordSize may be 32 or 64
         int wordSize;
+        RowColOrder dataOrder = ROW_MAJOR;
         
+        Value *getMatrixElement(IRBuilder<> &builder, Value *matrix, uint64_t x, uint64_t y);
+        Value *getVectorElement(IRBuilder<> &builder, Value *vector, uint64_t x);
+
+        Value *getMatrixTgtPtr(IRBuilder<> &builder, Value *matrix, uint64_t x, uint64_t y);
+        Value *getVectorTgtPtr(IRBuilder<> &builder, Value *vector, uint64_t x);
+
       public:
         Generator(CodeGenOpt::Level optLevel = CodeGenOpt::None, int wordSize = 64);
         ~Generator();
@@ -61,4 +74,3 @@ namespace SolverCreator {
 
 }
 #endif
-
