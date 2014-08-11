@@ -30,7 +30,7 @@ message(STATUS "LLVM DEFINITIONS: ${LLVM_DEFINITIONS}")
 
 llvm_map_components_to_libraries(REQ_LLVM_LIBRARIES native)
 
-add_library(solvercreator SHARED src/Generator.cpp src/TreeReader.cpp)
+add_library(solvercreator SHARED src/Generator.cpp src/Node.cpp src/Mesh.cpp)
 target_link_libraries(solvercreator ${REQ_LLVM_LIBRARIES})
 
 add_subdirectory(tests)

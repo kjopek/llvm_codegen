@@ -1,23 +1,5 @@
-#include "TreeReader.hpp"
-#include <cstdio>
-#include <cstdlib>
-
-void Node::setLeft(Node *left)
-{
-    this->left = left;
-}
-
-void Node::setRight(Node *right)
-{
-    this->right = right;
-}
-
-void Node::addElement(int k, int l)
-{
-    this->mergedElements.push_back(std::tuple<int, int>(k, l));
-}
-
-Node *TreeReader::getTree(const char *filename)
+#include "Mesh.hpp"
+Mesh *Mesh::loadFromFile(const char *filename)
 {
     FILE *fp;
     Mesh *mesh;
@@ -33,12 +15,12 @@ Node *TreeReader::getTree(const char *filename)
 
     fscanf(fp, "%u", &p);
     fscanf(fp, "%u", &elements);
-    
+
     mesh = new Mesh(p, 2);
 
     std::map<std::tuple<int, int>, Element> elementsMap;
     std::vector<Node *> nodesVector;
-    
+
     for (int i=0; i<elements; ++i) {
         unsigned int k, l;
         unsigned int x1, y1, x2, y2;
@@ -53,7 +35,7 @@ Node *TreeReader::getTree(const char *filename)
     }
 
     fscanf(fp, "%u", &nodes);
-    
+
     for (int i=0; i<nodes; ++i) {
         unsigned int node_id;
         unsigned int nr_elems;
@@ -72,7 +54,7 @@ Node *TreeReader::getTree(const char *filename)
             n->n_right = rightSon;
         }
     }
-    
+
     // all nodes read? built the Tree!
 
     for (int i=0; i<nodes; ++i) {
@@ -83,7 +65,7 @@ Node *TreeReader::getTree(const char *filename)
             nodesVector[i]->setRight(nodesVector[nodesVector[i]->n_right]);
         }
     }
-    
+
     fclose(fp);
-    return nodesVector[0];   
+    return mesh;
 }
