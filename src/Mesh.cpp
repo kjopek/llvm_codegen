@@ -1,4 +1,20 @@
 #include "Mesh.hpp"
+
+void Mesh::addElement(Element *e)
+{
+    this->elements.push_back(e);
+}
+
+void Mesh::addNode(Node *n)
+{
+    this->nodes.push_back(n);
+}
+
+Node *Mesh::getRootNode()
+{
+    return this->nodes[0];
+}
+
 Mesh *Mesh::loadFromFile(const char *filename)
 {
     FILE *fp;
@@ -18,18 +34,18 @@ Mesh *Mesh::loadFromFile(const char *filename)
 
     mesh = new Mesh(p, 2);
 
-    std::map<std::tuple<int, int>, Element> elementsMap;
+    std::map<std::tuple<int, int>, Element*> elementsMap;
     std::vector<Node *> nodesVector;
 
     for (int i=0; i<elements; ++i) {
         unsigned int k, l;
         unsigned int x1, y1, x2, y2;
         fscanf(fp, "%u %u %u %u %u %u", &k, &l, &x1, &y1, &x2, &y2);
-        Element e;
-        e.x1 = x1;
-        e.x2 = x2;
-        e.y1 = y1;
-        e.y2 = y2;
+        Element *e = new Element();
+        e->x1 = x1;
+        e->x2 = x2;
+        e->y1 = y1;
+        e->y2 = y2;
         std::tuple<int, int> t(k,l);
         elementsMap[t] = e;
     }
@@ -64,6 +80,11 @@ Mesh *Mesh::loadFromFile(const char *filename)
         if (nodesVector[i]->n_right != -1) {
             nodesVector[i]->setRight(nodesVector[nodesVector[i]->n_right]);
         }
+        mesh->addNode(nodesVector[i]);
+    }
+
+    for (auto it = elementsMap.begin(); it != elementsMap.end(); ++it) {
+        mesh->addElement(elementsMap[it->first]);
     }
 
     fclose(fp);
