@@ -26,7 +26,7 @@ class Node {
         int n_left = -1;
         int n_right = -1;
 
-        Node(int num) : node(num) {};
+        Node(int num) : node(num) {}
         void setLeft(Node *left);
         void setRight(Node *right);
         void addElement (int k, int l);

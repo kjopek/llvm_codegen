@@ -1,4 +1,4 @@
-#include "generator.hpp"
+#include "Generator.hpp"
 #include "llvm/Target/TargetLibraryInfo.h"
 
 #include "llvm/IR/Constants.h"

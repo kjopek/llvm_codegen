@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <unistd.h>
 
-#include "generator.hpp"
+#include "Generator.hpp"
 
 #include <fstream>
 

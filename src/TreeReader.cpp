@@ -1,4 +1,4 @@
-#include "TreeReader.h"
+#include "TreeReader.hpp"
 #include <cstdio>
 #include <cstdlib>
 
