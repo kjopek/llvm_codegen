@@ -10,7 +10,12 @@ void Node::setRight(Node *right)
     this->right = right;
 }
 
-void Node::addElement(int k, int l)
+void Node::addElement(Element *e)
 {
-    this->mergedElements.push_back(std::tuple<int, int>(k, l));
+    this->mergedElements.push_back(e);
+}
+
+void Node::setProduction(std::string &prodname)
+{
+    this->production = prodname;
 }

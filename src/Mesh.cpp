@@ -15,6 +15,16 @@ Node *Mesh::getRootNode()
     return this->nodes[0];
 }
 
+std::vector<Element *> &Mesh::getElements()
+{
+    return this->elements;
+}
+
+int Mesh::getPolynomial()
+{
+    return this->polynomial;
+}
+
 Mesh *Mesh::loadFromFile(const char *filename)
 {
     FILE *fp;
@@ -46,7 +56,10 @@ Mesh *Mesh::loadFromFile(const char *filename)
         e->x2 = x2;
         e->y1 = y1;
         e->y2 = y2;
+        e->k = k;
+        e->l = l;
         std::tuple<int, int> t(k,l);
+        mesh->addElement(e);
         elementsMap[t] = e;
     }
 
@@ -57,11 +70,11 @@ Mesh *Mesh::loadFromFile(const char *filename)
         unsigned int nr_elems;
         fscanf(fp, "%u %u", &node_id, &nr_elems);
         Node *n = new Node(node_id);
-        nodesVector[i] = n;
+        nodesVector.push_back(n);
         for (int q=0; q<nr_elems; ++q) {
             unsigned int k, l;
             fscanf(fp, "%u %u", &k, &l);
-            n->addElement(k, l);
+            n->addElement(elementsMap[std::tuple<int,int>(k,l)]);
         }
         if (nr_elems > 1) {
             unsigned int leftSon, rightSon;
@@ -81,10 +94,6 @@ Mesh *Mesh::loadFromFile(const char *filename)
             nodesVector[i]->setRight(nodesVector[nodesVector[i]->n_right]);
         }
         mesh->addNode(nodesVector[i]);
-    }
-
-    for (auto it = elementsMap.begin(); it != elementsMap.end(); ++it) {
-        mesh->addElement(elementsMap[it->first]);
     }
 
     fclose(fp);

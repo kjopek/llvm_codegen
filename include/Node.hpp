@@ -6,12 +6,14 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include "Element.hpp"
+
 class Node {
     private:
         int node = -1;
         Node *left = NULL;
         Node *right = NULL;
-        std::vector<std::tuple<int, int>> mergedElements;
+        std::vector<Element *> mergedElements;
         std::string production;
 
     public:
@@ -21,7 +23,8 @@ class Node {
         Node(int num) : node(num) {}
         void setLeft(Node *left);
         void setRight(Node *right);
-        void addElement (int k, int l);
+        void addElement (Element *e);
+        void setProduction(std::string &prodname);
 };
 
 #endif // NODE_HPP
