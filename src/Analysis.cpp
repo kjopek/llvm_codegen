@@ -48,13 +48,6 @@ void Analysis::enumerateElem(Mesh *mesh, Element *elem,
     map<vertex, int> &vertices = levelVertices[level];
     map<edge, int> &edges = levelEdges[level];
 
-    int x1, x2, y1, y2;
-
-    x1 = elem->x1;
-    x2 = elem->x2;
-    y1 = elem->y1;
-    y2 = elem->y2;
-
     edge e1(vertex(elem->x1, elem->y1), vertex(elem->x2, elem->y1));
     edge e2(vertex(elem->x2, elem->y1), vertex(elem->x2, elem->y2));
     edge e3(vertex(elem->x1, elem->y2), vertex(elem->x2, elem->y2));
@@ -139,58 +132,34 @@ void Analysis::enumerateElem1(Mesh *mesh, Element *elem,
     edge e3(v4, v3);
     edge e4(v1, v4);
 
+    auto add_vertex = [&] (vertex &v) {
+        if (!vertices.count(v)) {
+            vertices[v] = n++;
+        }
+        elem->dofs.push_back(vertices[v]);
+    };
+
+    auto add_edge = [&] (edge &e) {
+        if (!edges.count(e)) {
+            edges[e] = n;
+            n += mesh->getPolynomial()-1;
+        }
+        for (int i=0; i<mesh->getPolynomial()-1; ++i) {
+            elem->dofs.push_back(edges[e]+i);
+        }
+    };
+
     // vertices
-    if (!vertices.count(v1)) {
-        vertices[v1] = n++;
-    }
-    elem->dofs.push_back(vertices[v1]);
-
-    if (!vertices.count(v2)) {
-        vertices[v2] = n++;
-    }
-    elem->dofs.push_back(vertices[v2]);
-
-    if (!vertices.count(v3)) {
-        vertices[v3] = n++;
-    }
-    elem->dofs.push_back(vertices[v3]);
-
-    if (!vertices.count(v4)) {
-        vertices[v4] = n++;
-    }
-    elem->dofs.push_back(vertices[v4]);
+    add_vertex(v1);
+    add_vertex(v2);
+    add_vertex(v3);
+    add_vertex(v4);
 
     // edges
-    if (!edges.count(e1)) {
-        edges[e1] = n;
-        n += (mesh->getPolynomial()-1);
-    }
-    for (int i=0; i<mesh->getPolynomial()-1; ++i) {
-        elem->dofs.push_back(edges[e1]+i);
-    }
-
-    if (!edges.count(e2)) {
-        edges[e2] = n;
-        n += (mesh->getPolynomial()-1);
-    }
-    for (int i=0; i<mesh->getPolynomial()-1; ++i) {
-        elem->dofs.push_back(edges[e2]+i);
-    }
-
-    if (!edges.count(e3)) {
-        edges[e3] = n;
-        n += (mesh->getPolynomial()-1);
-    }
-    for (int i=0; i<mesh->getPolynomial()-1; ++i) {
-        elem->dofs.push_back(edges[e3]+i);
-    }
-    if (!edges.count(e4)) {
-        edges[e4] = n;
-        n += (mesh->getPolynomial()-1);
-    }
-    for (int i=0; i<mesh->getPolynomial()-1; ++i) {
-        elem->dofs.push_back(edges[e4]+i);
-    }
+    add_edge(e1);
+    add_edge(e2);
+    add_edge(e3);
+    add_edge(e4);
     // in 2-dimensional space the faces do not overlap
     for (int i=0; i<(mesh->getPolynomial()-1)*(mesh->getPolynomial()-1); ++i) {
         elem->dofs.push_back(n+i);
