@@ -18,27 +18,15 @@ int main(int argc, char ** argv)
 
     Analysis::enumerateDOF(m);
 
-    Element *e = m->getElements()[0];
-    printf("At: %d x %d -> %d x %d: ", e->x1, e->y1, e->x2, e->y2);
+    for (Element *e : m->getElements()) {
+        printf("At: %d x %d -> %d x %d: ", e->x1, e->y1, e->x2, e->y2);
 
-    for (auto i : e->dofs) {
-        printf("%d ", i);
-    }
-    printf("\n");
+        for (auto i : e->dofs) {
+            printf("%d ", i);
+        }
+        printf("\n");
 
-    e = m->getElements()[1];
-    printf("At: %d x %d -> %d x %d: ", e->x1, e->y1, e->x2, e->y2);
-    for (auto i : e->dofs) {
-        printf("%d ", i);
     }
-    printf("\n");
-
-    e = m->getElements()[2];
-    printf("At: %d x %d -> %d x %d: ", e->x1, e->y1, e->x2, e->y2);
-    for (auto i : e->dofs) {
-        printf("%d ", i);
-    }
-    printf("\n");
 
     delete m;
 
