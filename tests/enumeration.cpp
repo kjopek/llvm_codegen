@@ -27,7 +27,20 @@ int main(int argc, char ** argv)
         printf("\n");
 
     }
+    std::vector<int> *p = new std::vector<int>;
+    std::vector<int> *q = Analysis::nodeAnaliser(m->getRootNode(), p);
+    for (int i : *q) {
+        printf("%d ", i);
+    }
+    printf("\n");
 
+    for (int i : *Analysis::nodeAnaliser(m->getRootNode()->getLeft(), q)) {
+        printf("%d ", i);
+    }
+    printf("\n");
+
+    delete q;
+    delete p;
     delete m;
 
     return 0;

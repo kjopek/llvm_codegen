@@ -25,6 +25,16 @@ int Mesh::getPolynomial()
     return this->polynomial;
 }
 
+void Mesh::setDofs(int dofs)
+{
+    this->dofs = dofs;
+}
+
+int Mesh::getDofs()
+{
+    return this->dofs;
+}
+
 Mesh *Mesh::loadFromFile(const char *filename)
 {
     FILE *fp;
@@ -88,10 +98,10 @@ Mesh *Mesh::loadFromFile(const char *filename)
 
     for (int i=0; i<nodes; ++i) {
         if (nodesVector[i]->n_left != -1) {
-            nodesVector[i]->setLeft(nodesVector[nodesVector[i]->n_left]);
+            nodesVector[i]->setLeft(nodesVector[nodesVector[i]->n_left-1]);
         }
         if (nodesVector[i]->n_right != -1) {
-            nodesVector[i]->setRight(nodesVector[nodesVector[i]->n_right]);
+            nodesVector[i]->setRight(nodesVector[nodesVector[i]->n_right-1]);
         }
         mesh->addNode(nodesVector[i]);
     }

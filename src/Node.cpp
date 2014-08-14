@@ -19,3 +19,23 @@ void Node::setProduction(std::string &prodname)
 {
     this->production = prodname;
 }
+
+Node *Node::getLeft()
+{
+    return this->left;
+}
+
+Node *Node::getRight()
+{
+    return this->right;
+}
+
+std::vector<Element *> &Node::getElements()
+{
+    return this->mergedElements;
+}
+
+int Node::getId()
+{
+    return this->node;
+}

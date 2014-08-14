@@ -23,7 +23,15 @@ class Node {
         Node(int num) : node(num) {}
         void setLeft(Node *left);
         void setRight(Node *right);
+
+        Node *getLeft();
+        Node *getRight();
+
         void addElement (Element *e);
+        std::vector<Element *> &getElements();
+
+        int getId();
+
         void setProduction(std::string &prodname);
 };
 
