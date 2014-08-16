@@ -5,6 +5,7 @@
 #include <vector>
 #include <tuple>
 #include <map>
+#include <algorithm>
 #include "Mesh.hpp"
 
 typedef std::tuple<int, int> vertex;
@@ -13,7 +14,6 @@ typedef std::tuple<vertex, vertex> face;
 
 class Analysis {
     private:
-        static std::vector<int> *commonDOFs(std::vector<int> *e1, std::vector<int> *e2);
 
         static void enumerateElem1(Mesh *mesh, Element *elem,
                     std::map<int, std::map<vertex, int>> &levelVertices,
@@ -29,7 +29,7 @@ class Analysis {
     public:
         static void enumerateDOF(Mesh *mesh);
         static void doAnalise(Mesh *mesh);
-        static std::vector<int> *nodeAnaliser(Node *n, std::vector<int> *parent);
+        static void nodeAnaliser(Node *n, std::set<int> *parent);
 };
 
 #endif // ANALYSIS_HPP

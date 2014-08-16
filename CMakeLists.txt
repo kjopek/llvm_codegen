@@ -17,10 +17,9 @@ include_directories( ${LLVM_INCLUDE_DIRS} )
 link_directories( ${LLVM_LIBRARY_DIRS} )
 add_definitions( ${LLVM_DEFINITIONS} )
 
-SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
+SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3" )
 
-# FIXME: static {include,link} directories for FreeBSD 10.0 
-include_directories( "/usr/local/llvm34/include" )
+include_directories( "${LLVM_ROOT}/llvm34/include" )
 include_directories( "./include" )
 link_directories( "/usr/local/llvm34/lib" )
 

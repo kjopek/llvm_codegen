@@ -1,71 +1,70 @@
 #include "Analysis.hpp"
-
 using namespace std;
 
-vector<int> *Analysis::commonDOFs(vector<int> *e1, vector<int> *e2)
-{
-    vector<int> *output = new vector<int>();
-    for (int i=0; i<e1->size(); ++i) {
-        for (int j=0; j<e2->size(); ++j) {
-            if (e1->at(i) == e2->at(j)) {
-                output->push_back(e1->at(i));
-            }
-        }
-    }
-    return output;
-}
+// todo: rotator
 
-vector<int> *Analysis::nodeAnaliser(Node *node, vector<int> *parent)
+void Analysis::nodeAnaliser(Node *node, set<int> *parent)
 {
     auto getAllDOFs = [] (Node *n) {
-        vector<int> *dofs = new vector<int>();
+        set<int> *dofs = new set<int>();
         for (Element *e : n->getElements()) {
-            for (int dof : e->dofs) {
-                if (std::find(dofs->cbegin(), dofs->cend(), dof) == dofs->cend()) {
-                    dofs->push_back(dof);
-                }
-            }
+            for (int dof : e->dofs)
+                dofs->insert(dof);
         }
         return dofs;
     };
 
-    printf("Analise: %d\n", node->getId());
-
-    vector<int> *common;
+    set<int> *common;
 
     if (node->getLeft() != NULL && node->getRight() != NULL) {
-        vector<int> *lDofs = getAllDOFs(node->getLeft());
-        vector<int> *rDofs = getAllDOFs(node->getRight());
+        set<int> *lDofs = getAllDOFs(node->getLeft());
+        set<int> *rDofs = getAllDOFs(node->getRight());
 
-        printf("LDOFS: ");
-        for (auto i : *lDofs) {
-            printf("%d ", i);
+        common = new set<int>;
+        std::set_intersection(lDofs->begin(), lDofs->end(),
+                              rDofs->begin(), rDofs->end(),
+                              std::inserter(*common, common->begin()));
+
+        delete (lDofs);
+        delete (rDofs);
+
+        for (auto p = parent->cbegin(); p!=parent->cend(); ++p) {
+            common->insert(*p);
         }
-        printf("\n");
 
-        printf("RDOFS: ");
-        for (auto i : *rDofs) {
-            printf("%d ", i);
+        Analysis::nodeAnaliser(node->getLeft(), common);
+        Analysis::nodeAnaliser(node->getRight(), common);
+
+    } else {
+        common = getAllDOFs(node);
+    }
+    for (int dof : *common) {
+        if (!parent->count(dof)) {
+            node->addDof(dof);
         }
-        printf("\n");
-
-
-        common = Analysis::commonDOFs(lDofs, rDofs);
-        free(lDofs);
-        free(rDofs);
     }
 
-    for (auto p = parent->cbegin(); p!=parent->cend(); ++p) {
-        if (std::find(common->cbegin(), common->cend(), *p) == common->cend()) {
-            common->push_back(*p);
+    for (int dof : *common) {
+        if (parent->count(dof)) {
+            node->addDof(dof);
         }
     }
-    return common;
+
+//    printf("Node (%-2d): ", node->getId());
+//    for (int dof : node->getDofs()) {
+//        printf("%d ", dof);
+//    }
+//    printf("\n");
+
+    delete common;
 }
 
 void Analysis::doAnalise(Mesh *mesh)
 {
     Node *root = mesh->getRootNode();
+    std::set<int> *parent = new set<int>();
+    Analysis::nodeAnaliser(root, parent);
+    delete parent;
 }
 
 tuple<edge, int> Analysis::parentEdge(edge e,
@@ -124,14 +123,22 @@ void Analysis::enumerateElem(Mesh *mesh, Element *elem,
     tuple<edge, bool> ve4 = Analysis::parentEdge(e4, levelVertices, levelEdges, level);
 
 
-    vertex v1(std::min(std::get<0>(std::get<0>(std::get<0>(ve1))), std::get<0>(std::get<0>(std::get<0>(ve4)))),
-              std::min(std::get<1>(std::get<0>(std::get<0>(ve1))), std::get<1>(std::get<0>(std::get<0>(ve4)))));
-    vertex v2(std::max(std::get<0>(std::get<1>(std::get<0>(ve1))), std::get<0>(std::get<0>(std::get<0>(ve2)))),
-              std::min(std::get<1>(std::get<1>(std::get<0>(ve1))), std::get<1>(std::get<0>(std::get<0>(ve2)))));
-    vertex v3(std::max(std::get<0>(std::get<1>(std::get<0>(ve2))), std::get<0>(std::get<1>(std::get<0>(ve3)))),
-              std::max(std::get<1>(std::get<1>(std::get<0>(ve2))), std::get<1>(std::get<1>(std::get<0>(ve3)))));
-    vertex v4(std::min(std::get<0>(std::get<0>(std::get<0>(ve3))), std::get<0>(std::get<1>(std::get<0>(ve4)))),
-              std::max(std::get<1>(std::get<0>(std::get<0>(ve3))), std::get<1>(std::get<1>(std::get<0>(ve4)))));
+    vertex v1(std::min(std::get<0>(std::get<0>(std::get<0>(ve1))),
+                       std::get<0>(std::get<0>(std::get<0>(ve4)))),
+              std::min(std::get<1>(std::get<0>(std::get<0>(ve1))),
+                       std::get<1>(std::get<0>(std::get<0>(ve4)))));
+    vertex v2(std::max(std::get<0>(std::get<1>(std::get<0>(ve1))),
+                       std::get<0>(std::get<0>(std::get<0>(ve2)))),
+              std::min(std::get<1>(std::get<1>(std::get<0>(ve1))),
+                       std::get<1>(std::get<0>(std::get<0>(ve2)))));
+    vertex v3(std::max(std::get<0>(std::get<1>(std::get<0>(ve2))),
+                       std::get<0>(std::get<1>(std::get<0>(ve3)))),
+              std::max(std::get<1>(std::get<1>(std::get<0>(ve2))),
+                       std::get<1>(std::get<1>(std::get<0>(ve3)))));
+    vertex v4(std::min(std::get<0>(std::get<0>(std::get<0>(ve3))),
+                       std::get<0>(std::get<1>(std::get<0>(ve4)))),
+              std::max(std::get<1>(std::get<0>(std::get<0>(ve3))),
+                       std::get<1>(std::get<1>(std::get<0>(ve4)))));
 
     auto add_vertex = [&] (vertex &v) {
         if (parentVertices.count(v)) {

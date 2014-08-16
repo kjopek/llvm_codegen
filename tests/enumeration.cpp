@@ -17,7 +17,7 @@ int main(int argc, char ** argv)
     }
 
     Analysis::enumerateDOF(m);
-
+/*
     for (Element *e : m->getElements()) {
         printf("At: %d x %d -> %d x %d: ", e->x1, e->y1, e->x2, e->y2);
 
@@ -27,19 +27,10 @@ int main(int argc, char ** argv)
         printf("\n");
 
     }
-    std::vector<int> *p = new std::vector<int>;
-    std::vector<int> *q = Analysis::nodeAnaliser(m->getRootNode(), p);
-    for (int i : *q) {
-        printf("%d ", i);
-    }
-    printf("\n");
+*/
+    std::set<int> *p = new std::set<int>;
+    Analysis::nodeAnaliser(m->getRootNode(), p);
 
-    for (int i : *Analysis::nodeAnaliser(m->getRootNode()->getLeft(), q)) {
-        printf("%d ", i);
-    }
-    printf("\n");
-
-    delete q;
     delete p;
     delete m;
 

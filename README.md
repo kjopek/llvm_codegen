@@ -1,5 +1,4 @@
-solver_creator
+LLVM gen project
 ==============
 
-This is a simple proof-of-concept for autogenerating code
-for FEM solver. It uses LLVM as a backend.
+No information provided.

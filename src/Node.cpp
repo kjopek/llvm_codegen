@@ -39,3 +39,13 @@ int Node::getId()
 {
     return this->node;
 }
+
+void Node::addDof(int dof)
+{
+    this->dofs.push_back(dof);
+}
+
+std::vector<int> &Node::getDofs()
+{
+    return this->dofs;
+}
