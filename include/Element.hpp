@@ -5,10 +5,10 @@
 
 class Element {
     public:
-        int x1, y1;
-        int x2, y2;
-        int k, l;
-        std::vector<int> dofs;
+        uint64_t x1, y1;
+        uint64_t x2, y2;
+        uint64_t k, l;
+        std::vector<uint64_t> dofs;
 };
 
 #endif // ELEMENT_HPP

@@ -83,7 +83,7 @@ Value *Generator::getVectorTgtPtr(IRBuilder<> &builder, Value *vector, uint64_t 
     return builder.CreateGEP(vector, ConstantInt::get(getGlobalContext(), APInt(this->wordSize, x)));
 }
 
-bool Generator::createMergeFunction(const std::string &name,
+void Generator::createMergeFunction(const std::string &name,
                                     const std::vector< uint64_t > &nodesA,
                                     const std::vector< uint64_t > &nodesB,
                                     const std::vector< uint64_t > &outOrder)
@@ -99,7 +99,7 @@ bool Generator::createMergeFunction(const std::string &name,
     
     for (std::vector<uint64_t>::const_iterator i = nodesA.cbegin(); 
                                         i != nodesA.cend(); 
-                                        i++) {
+                                        ++i) {
 #ifdef DEBUG
         printf("%ld at %ld\n", *i, counter);
 #endif
@@ -110,7 +110,7 @@ bool Generator::createMergeFunction(const std::string &name,
     
     for (std::vector<uint64_t>::const_iterator i = nodesB.cbegin(); 
                                         i != nodesB.cend(); 
-                                        i++) {
+                                        ++i) {
 #ifdef DEBUG
         printf("%ld at %ld\n", *i, counter);
 #endif
@@ -210,5 +210,58 @@ bool Generator::createMergeFunction(const std::string &name,
     }
 
     builder.CreateRetVoid();
-    return true;
+}
+
+void Generator::createPreprocessFunction(const std::string &name,
+                                         const std::vector<uint64_t> &nodesIn,
+                                         const std::vector<uint64_t> &nodesOut)
+{
+    std::map<uint64_t, uint64_t> revNodes; // reverse mapping
+    uint64_t counter = 0;
+
+    for (std::vector<uint64_t>::const_iterator i = nodesIn.cbegin();
+                                        i != nodesIn.cend();
+                                        ++i) {
+#ifdef DEBUG
+        printf("%ld at %ld\n", *i, counter);
+#endif
+        revNodes[*i] = counter++;
+    }
+
+    IRBuilder<> builder(getGlobalContext());
+    std::vector<Type*> func_args;
+    func_args.push_back(PointerType::get(Type::getDoublePtrTy(getGlobalContext()), 0));
+    func_args.push_back(Type::getDoublePtrTy(getGlobalContext()));
+    func_args.push_back(PointerType::get(Type::getDoublePtrTy(getGlobalContext()), 0));
+    func_args.push_back(Type::getDoublePtrTy(getGlobalContext()));
+
+    FunctionType *funcType = FunctionType::get(Type::getVoidTy(getGlobalContext()),
+                                               func_args, false);
+
+    Function *function = Function::Create(funcType, Function::ExternalLinkage,
+                                          name, this->module);
+
+    Function::arg_iterator arg_iterator = function->arg_begin();
+
+    Value *matrixIn = arg_iterator++;
+    Value *rhsIn = arg_iterator++;
+    Value *matrixOut = arg_iterator++;
+    Value *rhsOut = arg_iterator++;
+
+    for (uint64_t i=0; i<nodesOut.size(); ++i) {
+        uint64_t x_node = nodesOut[i];
+        uint64_t offsetInX = revNodes[x_node];
+        for (uint64_t j=0; j<nodesOut.size(); ++j) {
+            uint64_t y_node = nodesOut[j];
+            uint64_t offsetInY = revNodes[y_node];
+            Value *value = this->getMatrixElement(builder, matrixIn, offsetInX, offsetInY);
+            Value *targetPtr = this->getMatrixTgtPtr(builder, matrixOut, i, j);
+            builder.CreateStore(value, targetPtr);
+
+        }
+        Value *valueRhs = this->getVectorElement(builder, rhsIn, offsetInX);
+        Value *targetRhsPtr = this->getVectorTgtPtr(builder, rhsOut, i);
+        builder.CreateStore(valueRhs, targetRhsPtr);
+    }
+    builder.CreateRetVoid();
 }

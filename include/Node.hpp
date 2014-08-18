@@ -15,7 +15,7 @@ class Node {
         Node *right = NULL;
         std::vector<Element *> mergedElements;
         std::string production;
-        std::vector<int> dofs;
+        std::vector<uint64_t> dofs;
 
     public:
         int n_left = -1;
@@ -29,10 +29,10 @@ class Node {
         Node *getRight();
 
         void addElement (Element *e);
-        void addDof(int dof);
-        std::vector<int> &getDofs();
-
         std::vector<Element *> &getElements();
+
+        void addDof(uint64_t dof);
+        std::vector<uint64_t> &getDofs();
 
         int getId();
 

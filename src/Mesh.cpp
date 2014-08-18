@@ -45,22 +45,22 @@ Mesh *Mesh::loadFromFile(const char *filename)
         return NULL;
     }
     // read the P
-    unsigned int p = 0;
-    unsigned int elements = 0;
-    unsigned int nodes = 0;
+    uint64_t p = 0;
+    uint64_t elements = 0;
+    uint64_t nodes = 0;
 
-    fscanf(fp, "%u", &p);
-    fscanf(fp, "%u", &elements);
+    fscanf(fp, "%lu", &p);
+    fscanf(fp, "%lu", &elements);
 
     mesh = new Mesh(p, 2);
 
-    std::map<std::tuple<int, int>, Element*> elementsMap;
+    std::map<std::tuple<uint64_t, uint64_t>, Element*> elementsMap;
     std::vector<Node *> nodesVector;
 
-    for (int i=0; i<elements; ++i) {
-        unsigned int k, l;
-        unsigned int x1, y1, x2, y2;
-        fscanf(fp, "%u %u %u %u %u %u", &k, &l, &x1, &y1, &x2, &y2);
+    for (uint64_t i=0; i<elements; ++i) {
+        uint64_t k, l;
+        uint64_t x1, y1, x2, y2;
+        fscanf(fp, "%lu %lu %lu %lu %lu %lu", &k, &l, &x1, &y1, &x2, &y2);
         Element *e = new Element();
         e->x1 = x1;
         e->x2 = x2;
@@ -68,27 +68,27 @@ Mesh *Mesh::loadFromFile(const char *filename)
         e->y2 = y2;
         e->k = k;
         e->l = l;
-        std::tuple<int, int> t(k,l);
+        std::tuple<uint64_t, uint64_t> t(k,l);
         mesh->addElement(e);
         elementsMap[t] = e;
     }
 
-    fscanf(fp, "%u", &nodes);
+    fscanf(fp, "%lu", &nodes);
 
-    for (int i=0; i<nodes; ++i) {
-        unsigned int node_id;
-        unsigned int nr_elems;
-        fscanf(fp, "%u %u", &node_id, &nr_elems);
+    for (uint64_t i=0; i<nodes; ++i) {
+        uint64_t node_id;
+        uint64_t nr_elems;
+        fscanf(fp, "%lu %lu", &node_id, &nr_elems);
         Node *n = new Node(node_id);
         nodesVector.push_back(n);
-        for (int q=0; q<nr_elems; ++q) {
-            unsigned int k, l;
-            fscanf(fp, "%u %u", &k, &l);
-            n->addElement(elementsMap[std::tuple<int,int>(k,l)]);
+        for (uint64_t q=0; q<nr_elems; ++q) {
+            uint64_t k, l;
+            fscanf(fp, "%lu %lu", &k, &l);
+            n->addElement(elementsMap[std::tuple<uint64_t,uint64_t>(k,l)]);
         }
         if (nr_elems > 1) {
-            unsigned int leftSon, rightSon;
-            fscanf(fp, "%u %u", &leftSon, &rightSon);
+            uint64_t leftSon, rightSon;
+            fscanf(fp, "%lu %lu", &leftSon, &rightSon);
             n->n_left = leftSon;
             n->n_right = rightSon;
         }
@@ -96,7 +96,7 @@ Mesh *Mesh::loadFromFile(const char *filename)
 
     // all nodes read? built the Tree!
 
-    for (int i=0; i<nodes; ++i) {
+    for (uint64_t i=0; i<nodes; ++i) {
         if (nodesVector[i]->n_left != -1) {
             nodesVector[i]->setLeft(nodesVector[nodesVector[i]->n_left-1]);
         }

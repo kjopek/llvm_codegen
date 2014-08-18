@@ -28,7 +28,7 @@ int main(int argc, char ** argv)
 
     }
 */
-    std::set<int> *p = new std::set<int>;
+    std::set<uint64_t> *p = new std::set<uint64_t>;
     Analysis::nodeAnaliser(m->getRootNode(), p);
 
     delete p;

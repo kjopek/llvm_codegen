@@ -8,7 +8,7 @@
 #include <algorithm>
 #include "Mesh.hpp"
 
-typedef std::tuple<int, int> vertex;
+typedef std::tuple<uint64_t, uint64_t> vertex;
 typedef std::tuple<vertex, vertex> edge;
 typedef std::tuple<vertex, vertex> face;
 
@@ -16,20 +16,20 @@ class Analysis {
     private:
 
         static void enumerateElem1(Mesh *mesh, Element *elem,
-                    std::map<int, std::map<vertex, int>> &levelVertices,
-                    std::map<int, std::map<edge, int>> &levelEdges, int &n);
+                    std::map<uint64_t, std::map<vertex, uint64_t>> &levelVertices,
+                    std::map<uint64_t, std::map<edge, uint64_t>> &levelEdges, uint64_t &n);
         static void enumerateElem(Mesh *mesh, Element *elem,
-                    std::map<int, std::map<vertex, int>> &levelVertices,
-                    std::map<int, std::map<edge, int>> &levelEdges, int &n, int level);
+                    std::map<uint64_t, std::map<vertex, uint64_t>> &levelVertices,
+                    std::map<uint64_t, std::map<edge, uint64_t>> &levelEdges, uint64_t &n, uint64_t level);
         // returns modified edge if taken from parent or returns
         // original edge with the information which coordinate has been modified
-        static std::tuple<edge, int> parentEdge(edge e,
-                    std::map<int, std::map<vertex, int>> &levelVertices,
-                    std::map<int, std::map<edge, int>> &levelEdges, int level);
+        static std::tuple<edge, uint64_t> parentEdge(edge e,
+                    std::map<uint64_t, std::map<vertex, uint64_t>> &levelVertices,
+                    std::map<uint64_t, std::map<edge, uint64_t>> &levelEdges, uint64_t level);
     public:
         static void enumerateDOF(Mesh *mesh);
         static void doAnalise(Mesh *mesh);
-        static void nodeAnaliser(Node *n, std::set<int> *parent);
+        static void nodeAnaliser(Node *n, std::set<uint64_t> *parent);
 };
 
 #endif // ANALYSIS_HPP

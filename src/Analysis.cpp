@@ -3,24 +3,24 @@ using namespace std;
 
 // todo: rotator
 
-void Analysis::nodeAnaliser(Node *node, set<int> *parent)
+void Analysis::nodeAnaliser(Node *node, set<uint64_t> *parent)
 {
     auto getAllDOFs = [] (Node *n) {
-        set<int> *dofs = new set<int>();
+        set<uint64_t> *dofs = new set<uint64_t>();
         for (Element *e : n->getElements()) {
-            for (int dof : e->dofs)
+            for (uint64_t dof : e->dofs)
                 dofs->insert(dof);
         }
         return dofs;
     };
 
-    set<int> *common;
+    set<uint64_t> *common;
 
     if (node->getLeft() != NULL && node->getRight() != NULL) {
-        set<int> *lDofs = getAllDOFs(node->getLeft());
-        set<int> *rDofs = getAllDOFs(node->getRight());
+        set<uint64_t> *lDofs = getAllDOFs(node->getLeft());
+        set<uint64_t> *rDofs = getAllDOFs(node->getRight());
 
-        common = new set<int>;
+        common = new set<uint64_t>;
         std::set_intersection(lDofs->begin(), lDofs->end(),
                               rDofs->begin(), rDofs->end(),
                               std::inserter(*common, common->begin()));
@@ -38,13 +38,13 @@ void Analysis::nodeAnaliser(Node *node, set<int> *parent)
     } else {
         common = getAllDOFs(node);
     }
-    for (int dof : *common) {
+    for (uint64_t dof : *common) {
         if (!parent->count(dof)) {
             node->addDof(dof);
         }
     }
 
-    for (int dof : *common) {
+    for (uint64_t dof : *common) {
         if (parent->count(dof)) {
             node->addDof(dof);
         }
@@ -62,22 +62,22 @@ void Analysis::nodeAnaliser(Node *node, set<int> *parent)
 void Analysis::doAnalise(Mesh *mesh)
 {
     Node *root = mesh->getRootNode();
-    std::set<int> *parent = new set<int>();
+    std::set<uint64_t> *parent = new set<uint64_t>();
     Analysis::nodeAnaliser(root, parent);
     delete parent;
 }
 
-tuple<edge, int> Analysis::parentEdge(edge e,
-                                          std::map<int, std::map<vertex, int> > &levelVertices,
-                                          std::map<int, std::map<edge, int> > &levelEdges,
-                                          int level)
+tuple<edge, uint64_t> Analysis::parentEdge(edge e,
+                                          std::map<uint64_t, std::map<vertex, uint64_t> > &levelVertices,
+                                          std::map<uint64_t, std::map<edge, uint64_t> > &levelEdges,
+                                          uint64_t level)
 {
     vertex &v1 = std::get<0>(e);
     vertex &v2 = std::get<1>(e);
-    int x1 = std::get<0>(v1);
-    int y1 = std::get<1>(v1);
-    int x2 = std::get<0>(v2);
-    int y2 = std::get<1>(v2);
+    uint64_t x1 = std::get<0>(v1);
+    uint64_t y1 = std::get<1>(v1);
+    uint64_t x2 = std::get<0>(v2);
+    uint64_t y2 = std::get<1>(v2);
 
     // horizontal edge
     if (y1 == y2) {
@@ -100,12 +100,12 @@ tuple<edge, int> Analysis::parentEdge(edge e,
 }
 
 void Analysis::enumerateElem(Mesh *mesh, Element *elem,
-                             std::map<int, std::map<vertex, int> > &levelVertices,
-                             std::map<int, std::map<edge, int> > &levelEdges,
-                             int &n, int level)
+                             std::map<uint64_t, std::map<vertex, uint64_t> > &levelVertices,
+                             std::map<uint64_t, std::map<edge, uint64_t> > &levelEdges,
+                             uint64_t &n, uint64_t level)
 {
-    map<vertex, int> &vertices = levelVertices[level];
-    map<edge, int> &edges = levelEdges[level];
+    map<vertex, uint64_t> &vertices = levelVertices[level];
+    map<edge, uint64_t> &edges = levelEdges[level];
 
     edge e1(vertex(elem->x1, elem->y1), vertex(elem->x2, elem->y1));
     edge e2(vertex(elem->x2, elem->y1), vertex(elem->x2, elem->y2));
@@ -114,8 +114,8 @@ void Analysis::enumerateElem(Mesh *mesh, Element *elem,
 
     // for other layers we need to take into consideration also
     // h-adaptation and its influence on positions of DOF
-    map<vertex, int> &parentVertices = levelVertices[level-1];
-    map<edge, int> &parentEdges = levelEdges[level-1];
+    map<vertex, uint64_t> &parentVertices = levelVertices[level-1];
+    map<edge, uint64_t> &parentEdges = levelEdges[level-1];
 
     tuple<edge, bool> ve1 = Analysis::parentEdge(e1, levelVertices, levelEdges, level);
     tuple<edge, bool> ve2 = Analysis::parentEdge(e2, levelVertices, levelEdges, level);
@@ -160,7 +160,7 @@ void Analysis::enumerateElem(Mesh *mesh, Element *elem,
                 n += mesh->getPolynomial()-1;
             }
         }
-        for (int i=0; i<(mesh->getPolynomial()-1); ++i) {
+        for (uint64_t i=0; i<(mesh->getPolynomial()-1); ++i) {
             elem->dofs.push_back(edges[e]+i);
         }
     };
@@ -175,19 +175,19 @@ void Analysis::enumerateElem(Mesh *mesh, Element *elem,
     add_edge(std::get<0>(ve3));
     add_edge(std::get<0>(ve4));
 
-    for (int i=0; i<(mesh->getPolynomial()-1)*(mesh->getPolynomial()-1); ++i) {
+    for (uint64_t i=0; i<(mesh->getPolynomial()-1)*(mesh->getPolynomial()-1); ++i) {
         elem->dofs.push_back(n+i);
     }
     n += (mesh->getPolynomial()-1)*(mesh->getPolynomial()-1);
 }
 
 void Analysis::enumerateElem1(Mesh *mesh, Element *elem,
-                             map<int, map<vertex, int>> &levelVertices,
-                             map<int, map<edge, int>> &levelEdges,
-                             int &n)
+                             map<uint64_t, map<vertex, uint64_t>> &levelVertices,
+                             map<uint64_t, map<edge, uint64_t>> &levelEdges,
+                             uint64_t &n)
 {
-    map<vertex, int> &vertices = levelVertices[1];
-    map<edge, int> &edges = levelEdges[1];
+    map<vertex, uint64_t> &vertices = levelVertices[1];
+    map<edge, uint64_t> &edges = levelEdges[1];
 
     vertex v1(elem->x1, elem->y1);
     vertex v2(elem->x2, elem->y1);
@@ -211,7 +211,7 @@ void Analysis::enumerateElem1(Mesh *mesh, Element *elem,
             edges[e] = n;
             n += mesh->getPolynomial()-1;
         }
-        for (int i=0; i<mesh->getPolynomial()-1; ++i) {
+        for (uint64_t i=0; i<mesh->getPolynomial()-1; ++i) {
             elem->dofs.push_back(edges[e]+i);
         }
     };
@@ -228,7 +228,7 @@ void Analysis::enumerateElem1(Mesh *mesh, Element *elem,
     add_edge(e3);
     add_edge(e4);
     // in 2-dimensional space the faces do not overlap
-    for (int i=0; i<(mesh->getPolynomial()-1)*(mesh->getPolynomial()-1); ++i) {
+    for (uint64_t i=0; i<(mesh->getPolynomial()-1)*(mesh->getPolynomial()-1); ++i) {
         elem->dofs.push_back(n+i);
     }
     n += (mesh->getPolynomial()-1)*(mesh->getPolynomial()-1);
@@ -236,13 +236,13 @@ void Analysis::enumerateElem1(Mesh *mesh, Element *elem,
 
 void Analysis::enumerateDOF(Mesh *mesh)
 {
-    map<int, vector<Element*>> elementMap;
-    set<int> levels;
+    map<uint64_t, vector<Element*>> elementMap;
+    set<uint64_t> levels;
 
-    map<int, map<vertex, int>> levelVertices;
-    map<int, map<edge, int>> levelEdges;
+    map<uint64_t, map<vertex, uint64_t>> levelVertices;
+    map<uint64_t, map<edge, uint64_t>> levelEdges;
 
-    int n = 1;
+    uint64_t n = 1;
 
     // now, we have level plan for mesh
     for (Element *e : mesh->getElements()) {
@@ -251,7 +251,7 @@ void Analysis::enumerateDOF(Mesh *mesh)
     }
 
     // implementation assumes that the neighbours may vary on one level only
-    for (int level : levels) {
+    for (uint64_t level : levels) {
         vector<Element *> elems = elementMap[level];
         // on the first layer we do not need to care about adaptation
         for (Element *elem : elems) {

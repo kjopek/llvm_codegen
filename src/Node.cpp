@@ -40,12 +40,12 @@ int Node::getId()
     return this->node;
 }
 
-void Node::addDof(int dof)
+void Node::addDof(uint64_t dof)
 {
     this->dofs.push_back(dof);
 }
 
-std::vector<int> &Node::getDofs()
+std::vector<uint64_t> &Node::getDofs()
 {
     return this->dofs;
 }
