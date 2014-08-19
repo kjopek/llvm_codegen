@@ -12,6 +12,9 @@
 #include "llvm/MC/MCSubtargetInfo.h"
 #include "llvm/Support/MemoryObject.h"
 
+#include <stack>
+#include <set>
+
 using namespace SolverCreator;
 
 Generator::Generator(CodeGenOpt::Level optLevel, int wordSize)
@@ -83,6 +86,29 @@ Value *Generator::getVectorTgtPtr(IRBuilder<> &builder, Value *vector, uint64_t 
     return builder.CreateGEP(vector, ConstantInt::get(getGlobalContext(), APInt(this->wordSize, x)));
 }
 
+void Generator::generateCode(Mesh *m)
+{
+    std::stack<Node*> stack;
+    stack.push(m->getRootNode());
+
+    while (!stack.empty()) {
+        Node *n = stack.top();
+        std::string prodName = "A" + std::to_string(n->getId());
+        stack.pop();
+        printf("Creating production: %s\n", prodName.c_str());
+        if (n->getLeft() != NULL && n->getRight() != NULL) {
+
+            this->createMergeFunction(prodName, n->getLeft()->getDofs(),
+                                      n->getRight()->getDofs(),
+                                      n->getDofs());
+            stack.push(n->getLeft());
+            stack.push(n->getRight());
+        } else {
+            this->createPreprocessFunction(prodName, n->getElements()[0]->dofs, n->getDofs());
+        }
+    }
+}
+
 void Generator::createMergeFunction(const std::string &name,
                                     const std::vector< uint64_t > &nodesA,
                                     const std::vector< uint64_t > &nodesB,
@@ -116,7 +142,6 @@ void Generator::createMergeFunction(const std::string &name,
 #endif
         revNodesB[*i] = counter++;
     }
-    
     
     IRBuilder<> builder(getGlobalContext());
 
@@ -154,9 +179,8 @@ void Generator::createMergeFunction(const std::string &name,
     rhsOut->setName("rhsOut");
     
     for (uint64_t i=0; i<outOrder.size(); ++i) {
+        uint64_t x_node = outOrder[i];
         for (uint64_t j=0; j<outOrder.size(); ++j) {
-
-            uint64_t x_node = outOrder[i];
             uint64_t y_node = outOrder[j];
 
             bool inA = (revNodesA.count(x_node) > 0) && (revNodesA.count(y_node) > 0);
@@ -167,7 +191,6 @@ void Generator::createMergeFunction(const std::string &name,
                 uint64_t offsetAY = revNodesA[y_node];
                 uint64_t offsetBX = revNodesB[x_node];
                 uint64_t offsetBY = revNodesB[y_node];
-                fprintf(stderr, "A[%lu, %lu] + B[%lu, %lu]\n", offsetAX, offsetAY, offsetBX, offsetBY);
                 
                 Value *valA = this->getMatrixElement(builder, matrixA, offsetAX, offsetAY);
                 Value *valB = this->getMatrixElement(builder, matrixB, offsetBX, offsetBY);
@@ -176,12 +199,6 @@ void Generator::createMergeFunction(const std::string &name,
                 Value *targetPtr = this->getMatrixTgtPtr(builder, matrixOut, i, j);
                 builder.CreateStore(sumAB, targetPtr);
                 
-                Value *valRhsA = this->getVectorElement(builder, rhsA, offsetAX);
-                Value *valRhsB = this->getVectorElement(builder, rhsB, offsetBX);
-                Value *sumRHS = builder.CreateFAdd(valRhsA, valRhsB);
-                
-                Value *targetRhsPtr = this->getVectorTgtPtr(builder, rhsOut, i);
-                builder.CreateStore(sumRHS, targetRhsPtr);
                 
             }
             else if (inA && !inB) {
@@ -190,10 +207,6 @@ void Generator::createMergeFunction(const std::string &name,
                 Value *valA = this->getMatrixElement(builder, matrixA, offsetAX, offsetAY);
                 Value *targetPtr = this->getMatrixTgtPtr(builder, matrixOut, i, j);
                 builder.CreateStore(valA, targetPtr);
-
-                Value *valRhsA = this->getVectorElement(builder, rhsA, offsetAX);
-                Value *targetRhsPtr = this->getVectorTgtPtr(builder, rhsOut, i);
-                builder.CreateStore(valRhsA, targetRhsPtr);
             }
             else if (!inA && inB) {
                 uint64_t offsetBX = revNodesB[x_node];
@@ -202,10 +215,29 @@ void Generator::createMergeFunction(const std::string &name,
                 Value *targetPtr = this->getMatrixTgtPtr(builder, matrixOut, i, j);
                 builder.CreateStore(valB, targetPtr);
                 
-                Value *valRhsB = this->getVectorElement(builder, rhsB, offsetBX);
-                Value *targetRhsPtr = this->getVectorTgtPtr(builder, rhsOut, i);
-                builder.CreateStore(valRhsB, targetRhsPtr);
             }
+        }
+        bool inA = revNodesA.count(x_node) > 0;
+        bool inB = revNodesB.count(x_node) > 0;
+        if (inA && inB) {
+            uint64_t offsetAX = revNodesA[x_node];
+            uint64_t offsetBX = revNodesB[x_node];
+            Value *valRhsA = this->getVectorElement(builder, rhsA, offsetAX);
+            Value *valRhsB = this->getVectorElement(builder, rhsB, offsetBX);
+            Value *sumRHS = builder.CreateFAdd(valRhsA, valRhsB);
+
+            Value *targetRhsPtr = this->getVectorTgtPtr(builder, rhsOut, i);
+            builder.CreateStore(sumRHS, targetRhsPtr);
+        } else if (inA && !inB) {
+            uint64_t offsetAX = revNodesA[x_node];
+            Value *valRhsA = this->getVectorElement(builder, rhsA, offsetAX);
+            Value *targetRhsPtr = this->getVectorTgtPtr(builder, rhsOut, i);
+            builder.CreateStore(valRhsA, targetRhsPtr);
+        } else if (!inA && inB) {
+            uint64_t offsetBX = revNodesB[x_node];
+            Value *valRhsB = this->getVectorElement(builder, rhsB, offsetBX);
+            Value *targetRhsPtr = this->getVectorTgtPtr(builder, rhsOut, i);
+            builder.CreateStore(valRhsB, targetRhsPtr);
         }
     }
 
@@ -243,10 +275,18 @@ void Generator::createPreprocessFunction(const std::string &name,
 
     Function::arg_iterator arg_iterator = function->arg_begin();
 
+    BasicBlock *entryBlock = BasicBlock::Create(getGlobalContext(), "entry", function);
+    builder.SetInsertPoint(entryBlock);
+
     Value *matrixIn = arg_iterator++;
     Value *rhsIn = arg_iterator++;
     Value *matrixOut = arg_iterator++;
     Value *rhsOut = arg_iterator++;
+
+    matrixIn->setName("matrixIn");
+    rhsIn->setName("rhsIn");
+    matrixOut->setName("matrixOut");
+    rhsOut->setName("rhsOut");
 
     for (uint64_t i=0; i<nodesOut.size(); ++i) {
         uint64_t x_node = nodesOut[i];

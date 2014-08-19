@@ -10,6 +10,11 @@ void Node::setRight(Node *right)
     this->right = right;
 }
 
+void Node::setParent(Node *parent)
+{
+    this->parent = parent;
+}
+
 void Node::addElement(Element *e)
 {
     this->mergedElements.push_back(e);
@@ -20,6 +25,11 @@ void Node::setProduction(std::string &prodname)
     this->production = prodname;
 }
 
+std::string &Node::getProduction()
+{
+    return this->production;
+}
+
 Node *Node::getLeft()
 {
     return this->left;
@@ -28,6 +38,11 @@ Node *Node::getLeft()
 Node *Node::getRight()
 {
     return this->right;
+}
+
+Node *Node::getParent()
+{
+    return this->parent;
 }
 
 std::vector<Element *> &Node::getElements()

@@ -1,8 +1,9 @@
 #include <cstdio>
 #include <unistd.h>
 
+#include "Analysis.hpp"
 #include "Generator.hpp"
-
+#include "Mesh.hpp"
 #include <fstream>
 
 #include <list>
@@ -17,13 +18,17 @@ using namespace std;
 int main(int argc, char ** argv) {
 
     std::string output = "a.out";
+    std::string input = "mesh.txt";
 
     int c;
     
     CodeGenOpt::Level optLevel = CodeGenOpt::None;
     
-    while ( (c = getopt(argc, argv, "o:O:")) != EOF) {
+    while ( (c = getopt(argc, argv, "f:o:O:")) != EOF) {
         switch(c) {
+            case 'f':
+                input = std::string(optarg);
+                break;
             case 'o':
                 output = std::string(optarg);
                 break;
@@ -52,19 +57,11 @@ int main(int argc, char ** argv) {
     }
 
     Generator *generator = new Generator(optLevel);
-    vector <uint64_t> a;
-    vector <uint64_t> b;
-    vector <uint64_t> rc;
-    
-    a.push_back(20);
-    b.push_back(20);
-
-    a.push_back(123);
-    b.push_back(123);
-    
-    rc.push_back(20);
-    rc.push_back(123);
-    generator->createMergeFunction("test", a, b, rc);
+    Mesh *m = Mesh::loadFromFile(input.c_str());
+    Analysis::enumerateDOF(m);
+    Analysis::doAnalise(m);
+    generator->generateCode(m);
+    delete m;
 
     generator->saveToFile(output);
 

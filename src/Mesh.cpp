@@ -35,7 +35,37 @@ int Mesh::getDofs()
     return this->dofs;
 }
 
-Mesh *Mesh::loadFromFile(const char *filename)
+bool Mesh::saveToFile(const char *filename)
+{
+    FILE *fp;
+    fp = fopen(filename, "w");
+    if (fp == NULL) {
+        return false;
+    }
+
+    fprintf(fp, "%u\n", this->getPolynomial());
+    fprintf(fp, "%lu\n", this->getElements().size());
+
+    for (Element *e : this->getElements()) {
+        fprintf(fp, "%lu %lu %lu %lu %lu %lu\n", e->k, e->l, e->x1, e->y1, e->x2, e->y2);
+    }
+
+    fprintf(fp, "\n%lu\n", this->nodes.size());
+    for (Node *n : this->nodes) {
+        fprintf(fp, "%u %lu ", n->getId(), n->getElements().size());
+        for (Element *e : n->getElements()) {
+            fprintf(fp, "%lu %lu ", e->k, e->l);
+        }
+        if (n->getElements().size() > 1) {
+            fprintf(fp, "%u %u ", n->getLeft()->getId(), n->getRight()->getId());
+        }
+        fprintf(fp, "%s\n", n->getProduction().c_str());
+    }
+    fclose(fp);
+    return true;
+}
+
+Mesh *Mesh::loadFromFile(const char *filename, MeshSource src)
 {
     FILE *fp;
     Mesh *mesh;

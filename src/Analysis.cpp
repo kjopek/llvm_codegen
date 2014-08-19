@@ -72,6 +72,8 @@ tuple<edge, uint64_t> Analysis::parentEdge(edge e,
                                           std::map<uint64_t, std::map<edge, uint64_t> > &levelEdges,
                                           uint64_t level)
 {
+    // this function returns either parent egde (if exists)
+    // or the specified edge if there is no parent edge
     vertex &v1 = std::get<0>(e);
     vertex &v2 = std::get<1>(e);
     uint64_t x1 = std::get<0>(v1);

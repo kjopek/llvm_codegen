@@ -11,6 +11,11 @@
 #include "Node.hpp"
 #include <cmath>
 
+typedef enum {
+    HP2D = 0,
+    GENERATOR
+} MeshSource;
+
 class Mesh {
     private:
         std::vector<Node *> nodes;
@@ -26,7 +31,8 @@ class Mesh {
 
         void addElement(Element *e);
         void addNode(Node *n);
-        static Mesh *loadFromFile(const char *filename);
+        static Mesh *loadFromFile(const char *filename, MeshSource src = GENERATOR);
+        bool saveToFile(const char * filename);
         Node *getRootNode();
         std::vector<Element *> &getElements();
         int getPolynomial();

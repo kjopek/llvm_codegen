@@ -13,6 +13,7 @@ class Node {
         int node = -1;
         Node *left = NULL;
         Node *right = NULL;
+        Node *parent = NULL;
         std::vector<Element *> mergedElements;
         std::string production;
         std::vector<uint64_t> dofs;
@@ -24,9 +25,11 @@ class Node {
         Node(int num) : node(num) {}
         void setLeft(Node *left);
         void setRight(Node *right);
+        void setParent(Node *parent);
 
         Node *getLeft();
         Node *getRight();
+        Node *getParent();
 
         void addElement (Element *e);
         std::vector<Element *> &getElements();
@@ -37,6 +40,7 @@ class Node {
         int getId();
 
         void setProduction(std::string &prodname);
+        std::string &getProduction();
 };
 
 #endif // NODE_HPP

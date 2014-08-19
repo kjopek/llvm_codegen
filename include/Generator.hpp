@@ -28,6 +28,10 @@
 #include "llvm/Support/FormattedStream.h"
 #include "llvm/Support/Program.h"
 
+#include "Mesh.hpp"
+#include "Node.hpp"
+#include "Element.hpp"
+
 using namespace llvm;
 
 namespace SolverCreator {
@@ -56,6 +60,8 @@ namespace SolverCreator {
       public:
         Generator(CodeGenOpt::Level optLevel = CodeGenOpt::None, int wordSize = 64);
         ~Generator();
+
+        void generateCode(Mesh *m);
 
         void createMergeFunction(const std::string &name,
         	const std::vector< uint64_t > &nodesA,
