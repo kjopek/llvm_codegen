@@ -44,6 +44,8 @@ void Analysis::nodeAnaliser(Node *node, set<uint64_t> *parent)
         }
     }
 
+    node->setDofsToElim(node->getDofs().size());
+
     for (uint64_t dof : *common) {
         if (parent->count(dof)) {
             node->addDof(dof);

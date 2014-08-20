@@ -18,6 +18,8 @@ class Node {
         std::string production;
         std::vector<uint64_t> dofs;
 
+        uint64_t dofsToElim;
+
     public:
         int n_left = -1;
         int n_right = -1;
@@ -38,6 +40,9 @@ class Node {
         std::vector<uint64_t> &getDofs();
 
         int getId();
+
+        void setDofsToElim(uint64_t dofs);
+        uint64_t getDofsToElim();
 
         void setProduction(std::string &prodname);
         std::string &getProduction();

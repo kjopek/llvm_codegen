@@ -64,3 +64,13 @@ std::vector<uint64_t> &Node::getDofs()
 {
     return this->dofs;
 }
+
+void Node::setDofsToElim(uint64_t dofs)
+{
+    this->dofsToElim = dofs;
+}
+
+uint64_t Node::getDofsToElim()
+{
+    return this->dofsToElim;
+}
