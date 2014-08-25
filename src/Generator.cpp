@@ -95,7 +95,7 @@ void Generator::generateCode(Mesh *m)
         Node *n = stack.top();
         std::string prodName = "A" + std::to_string(n->getId());
         stack.pop();
-        printf("Creating production: %s\n", prodName.c_str());
+        //printf("Creating production: %s\n", prodName.c_str());
         if (n->getLeft() != NULL && n->getRight() != NULL) {
 
             this->createMergeFunction(prodName, n->getLeft()->getDofs(),
