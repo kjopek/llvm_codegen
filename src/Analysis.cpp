@@ -1,4 +1,5 @@
 #include "Analysis.hpp"
+
 using namespace std;
 
 // todo: rotator

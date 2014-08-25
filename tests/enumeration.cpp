@@ -2,9 +2,11 @@
 #include "Analysis.hpp"
 
 #include <cstdio>
+#include <sys/time.h>
 
 int main(int argc, char ** argv)
 {
+    struct timeval tm1, tm2;
     if (argc != 2) {
         printf("Usage: %s <mesh file>\n", argv[0]);
         return 1;
@@ -17,20 +19,11 @@ int main(int argc, char ** argv)
     }
 
     Analysis::enumerateDOF(m);
-/*
-    for (Element *e : m->getElements()) {
-        printf("At: %d x %d -> %d x %d: ", e->x1, e->y1, e->x2, e->y2);
-
-        for (auto i : e->dofs) {
-            printf("%d ", i);
-        }
-        printf("\n");
-
-    }
-*/
+    gettimeofday(&tm1, NULL);
     std::set<uint64_t> *p = new std::set<uint64_t>;
     Analysis::nodeAnaliser(m->getRootNode(), p);
-
+    gettimeofday(&tm2, NULL);
+    printf("Analysis time: %f [s]\n", (tm2.tv_sec - tm1.tv_sec) + (tm2.tv_usec - tm1.tv_usec)*1e-6);
     delete p;
     delete m;
 
