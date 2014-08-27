@@ -59,6 +59,7 @@ void Generator::saveToFile(const std::string &filename)
 Generator::~Generator()
 {
     delete this->module;
+    delete this->targetMachine;
 }
 
 Value *Generator::getMatrixElement(IRBuilder<> &builder, Value *matrix, uint64_t x, uint64_t y)
@@ -93,17 +94,20 @@ void Generator::generateCode(Mesh *m)
 
     while (!stack.empty()) {
         Node *n = stack.top();
-        std::string prodName = "A" + std::to_string(n->getId());
         stack.pop();
-        //printf("Creating production: %s\n", prodName.c_str());
-        if (n->getLeft() != NULL && n->getRight() != NULL) {
+        std::string prodName = "A" + std::to_string(n->getId());
 
+        if (n->getLeft() != NULL && n->getRight() != NULL) {
+            printf("Creating merge production: %s\n", prodName.c_str());
+            printf("Dofs left: %lu, Dofs right: %lu, Merged dofs: %lu\n", n->getLeft()->getDofs().size(),
+                   n->getRight()->getDofs().size(), n->getDofs().size());
             this->createMergeFunction(prodName, n->getLeft()->getDofs(),
                                       n->getRight()->getDofs(),
                                       n->getDofs());
             stack.push(n->getLeft());
             stack.push(n->getRight());
         } else {
+             printf("Creating preprocess production: %s\n", prodName.c_str());
             this->createPreprocessFunction(prodName, n->getElements()[0]->dofs, n->getDofs());
         }
     }

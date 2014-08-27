@@ -14,7 +14,7 @@ int main(int argc, char ** argv)
     }
 
 
-    CodeGenOpt::Level optLevel = CodeGenOpt::Aggressive;
+    CodeGenOpt::Level optLevel = CodeGenOpt::Default;
     Mesh *m = Mesh::loadFromFile(argv[1]);
     SolverCreator::Generator *generator = new SolverCreator::Generator(optLevel);
     if (m == NULL) {
@@ -37,6 +37,7 @@ int main(int argc, char ** argv)
     printf("Generation time: %f [s]\n", (tm2.tv_sec - tm1.tv_sec) + (tm2.tv_usec - tm1.tv_usec)*1e-6);
     delete p;
     delete m;
+    delete generator;
 
     return 0;
 }
