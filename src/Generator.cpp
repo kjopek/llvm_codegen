@@ -99,7 +99,7 @@ void Generator::generateCode(Mesh *m)
 
         if (n->getLeft() != NULL && n->getRight() != NULL) {
             printf("Creating merge production: %s\n", prodName.c_str());
-            printf("Dofs left: %lu, Dofs right: %lu, Merged dofs: %lu\n", n->getLeft()->getDofs().size(),
+            printf("\tDofs left: %lu, Dofs right: %lu, Merged dofs: %lu\n", n->getLeft()->getDofs().size(),
                    n->getRight()->getDofs().size(), n->getDofs().size());
             this->createMergeFunction(prodName, n->getLeft()->getDofs(),
                                       n->getRight()->getDofs(),
